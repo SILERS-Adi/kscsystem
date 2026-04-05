@@ -12,6 +12,8 @@
     "@kscsystem/db": "*",
     "@kscsystem/types": "*",
     "@kscsystem/ui": "*",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.2",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",
     "react": "^19.0.0",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@kscsystem/config": "*",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -141,6 +141,11 @@ export function RegisterForm() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Hasło</label>
+              <Input name="password" type="password" placeholder="Min. 8 znaków" required minLength={8} />
+            </div>
+
             {error && (
               <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
                 {error}

@@ -3,6 +3,7 @@
 import { prisma } from "@kscsystem/db";
 import { cookies } from "next/headers";
 import type { OrganizationType } from "@prisma/client";
+import { hashPassword, createSession } from "@/lib/auth";
 
 export async function getQuizSessionData(sessionId: string) {
   const session = await prisma.quizSession.findUnique({
@@ -26,10 +27,15 @@ export async function getQuizSessionData(sessionId: string) {
 export async function registerUser(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
   const companyName = formData.get("companyName") as string;
   const nip = (formData.get("nip") as string) || null;
   const sector = (formData.get("sector") as string) || null;
   const sessionId = (formData.get("sessionId") as string) || null;
+
+  if (!password || password.length < 8) {
+    return { error: "Hasło musi mieć minimum 8 znaków." };
+  }
 
   // Check if email already exists
   const existing = await prisma.user.findUnique({ where: { email } });
@@ -61,10 +67,12 @@ export async function registerUser(formData: FormData) {
   });
 
   // Create user as org_admin
+  const pwHash = await hashPassword(password);
   const user = await prisma.user.create({
     data: {
-      email,
+      email: email.trim().toLowerCase(),
       name,
+      passwordHash: pwHash,
       role: "org_admin",
       organizationId: org.id,
     },
@@ -115,14 +123,13 @@ export async function registerUser(formData: FormData) {
     });
   }
 
-  // Set org cookie for session
-  const cookieStore = await cookies();
-  cookieStore.set("kscsystem_org_id", org.id, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-    path: "/",
+  // Create auth session
+  await createSession({
+    userId: user.id,
+    email: user.email,
+    name: user.name ?? "",
+    role: user.role,
+    orgId: org.id,
   });
 
   return {

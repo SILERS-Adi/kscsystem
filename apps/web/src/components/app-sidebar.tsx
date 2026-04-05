@@ -45,10 +45,10 @@ export async function AppSidebar() {
 
       {/* Footer */}
       <div className="border-t border-border p-3">
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-surface-200 transition-colors">
+        <a href="/logout" className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-surface-200 transition-colors">
           <LogOut size={18} />
           Wyloguj się
-        </button>
+        </a>
       </div>
     </aside>
   );
