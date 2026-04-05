@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@kscsystem/db": "*",
     "@kscsystem/types": "*",
     "@kscsystem/ui": "*",
     "lucide-react": "^0.468.0",
