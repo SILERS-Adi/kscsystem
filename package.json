@@ -1,0 +1,27 @@
+{
+  "name": "kscsystem",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:web": "turbo dev --filter=@kscsystem/web",
+    "dev:landing": "turbo dev --filter=@kscsystem/landing",
+    "dev:admin": "turbo dev --filter=@kscsystem/admin",
+    "db:generate": "turbo db:generate",
+    "db:push": "turbo db:push",
+    "db:studio": "npm run db:studio --workspace=@kscsystem/db"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "npm@10.0.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
