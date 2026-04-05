@@ -190,16 +190,27 @@ export default function WynikPage() {
           </CardContent>
         </Card>
 
-        {/* CTA */}
-        <div className="text-center mt-12">
-          <p className="text-sm text-gray-400 mb-4">Chcesz od razu zarządzać zgodnością?</p>
-          <Button variant="outline" asChild>
-            <Link href="https://kscsystem.pl/register">
-              Załóż konto w KSCSYSTEM
-              <ArrowRight size={16} />
-            </Link>
-          </Button>
-        </div>
+        {/* CTA — main onboarding */}
+        <Card className="overflow-hidden mt-8">
+          <div className="h-1 gradient-accent" />
+          <CardContent className="p-8 text-center">
+            <Shield size={32} className="text-accent-400 mx-auto mb-3" />
+            <h3 className="text-xl font-bold text-white mb-2">
+              Zacznij zarządzać zgodnością z KSC
+            </h3>
+            <p className="text-sm text-gray-400 mb-6 max-w-sm mx-auto">
+              Załóż bezpłatne konto i otrzymaj spersonalizowaną checklistę obowiązków,
+              szablony dokumentów i śledzenie postępu — wszystko gotowe od razu.
+            </p>
+            <Button size="lg" className="w-full max-w-xs" asChild>
+              <Link href={`/register-redirect?session=${result.sessionId}`}>
+                Załóż konto — 14 dni za darmo
+                <ArrowRight size={18} />
+              </Link>
+            </Button>
+            <p className="text-xs text-gray-500 mt-3">Bez karty kredytowej · Konto w 30 sekund</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

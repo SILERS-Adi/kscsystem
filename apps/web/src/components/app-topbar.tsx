@@ -1,4 +1,5 @@
 import { prisma } from "@kscsystem/db";
+import { cookies } from "next/headers";
 import { Avatar, Badge } from "@kscsystem/ui";
 import { Bell } from "lucide-react";
 
@@ -9,10 +10,18 @@ const classLabels: Record<string, string> = {
 };
 
 export async function AppTopbar() {
-  const org = await prisma.organization.findFirst({
-    where: { nip: "1234567890" },
-    include: { users: { where: { role: "org_admin" }, take: 1 } },
-  });
+  const cookieStore = await cookies();
+  const orgId = cookieStore.get("kscsystem_org_id")?.value;
+
+  const org = orgId
+    ? await prisma.organization.findUnique({
+        where: { id: orgId },
+        include: { users: { where: { role: "org_admin" }, take: 1 } },
+      })
+    : await prisma.organization.findFirst({
+        orderBy: { createdAt: "desc" },
+        include: { users: { where: { role: "org_admin" }, take: 1 } },
+      });
 
   const user = org?.users[0];
 

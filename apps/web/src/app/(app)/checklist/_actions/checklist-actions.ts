@@ -2,34 +2,37 @@
 
 import { prisma, type ChecklistStatus } from "@kscsystem/db";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
-// TODO: Replace with real auth — for now hardcoded org
-const DEMO_ORG_ID_QUERY = { nip: "1234567890" };
+async function getCurrentOrgId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const orgId = cookieStore.get("kscsystem_org_id")?.value;
+  if (orgId) return orgId;
 
-async function getDemoOrgId() {
-  const org = await prisma.organization.findUnique({ where: DEMO_ORG_ID_QUERY });
+  // Fallback: first org in DB (demo mode)
+  const org = await prisma.organization.findFirst({ orderBy: { createdAt: "desc" } });
   return org?.id ?? null;
 }
 
 export async function getChecklistWithProgress() {
-  const orgId = await getDemoOrgId();
+  const orgId = await getCurrentOrgId();
   if (!orgId) return { items: [], orgId: null };
 
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
 
-  // Get active checklist items applicable to this org type
   const items = await prisma.checklistItem.findMany({
     where: {
       isActive: true,
       OR: [
         { appliesToType: "all" },
-        { appliesToType: org?.type === "essential" ? "essential" : org?.type === "important" ? "important" : "all" },
+        ...(org?.type && org.type !== "unknown"
+          ? [{ appliesToType: org.type }]
+          : []),
       ],
     },
     orderBy: { sortOrder: "asc" },
   });
 
-  // Get existing progress for this org
   const progress = await prisma.checklistProgress.findMany({
     where: { organizationId: orgId },
   });
@@ -55,7 +58,7 @@ export async function updateChecklistStatus(
   status: ChecklistStatus,
   note?: string
 ) {
-  const orgId = await getDemoOrgId();
+  const orgId = await getCurrentOrgId();
   if (!orgId) return;
 
   await prisma.checklistProgress.upsert({
@@ -81,8 +84,8 @@ export async function updateChecklistStatus(
 }
 
 export async function getComplianceStats() {
-  const orgId = await getDemoOrgId();
-  if (!orgId) return { percentage: 0, done: 0, inProgress: 0, todo: 0, total: 0, classification: "unknown" };
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return { percentage: 0, done: 0, inProgress: 0, todo: 0, total: 0, critical: 0, classification: "unknown", orgName: "" };
 
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
 
@@ -91,7 +94,9 @@ export async function getComplianceStats() {
       isActive: true,
       OR: [
         { appliesToType: "all" },
-        { appliesToType: org?.type === "essential" ? "essential" : org?.type === "important" ? "important" : "all" },
+        ...(org?.type && org.type !== "unknown"
+          ? [{ appliesToType: org.type }]
+          : []),
       ],
     },
   });
@@ -105,6 +110,7 @@ export async function getComplianceStats() {
   let done = 0;
   let inProgress = 0;
   let todo = 0;
+  let critical = 0;
   let applicable = 0;
 
   for (const item of items) {
@@ -113,10 +119,12 @@ export async function getComplianceStats() {
     applicable++;
     if (status === "done") done++;
     else if (status === "in_progress") inProgress++;
-    else todo++;
+    else {
+      todo++;
+      if (item.priority === 1) critical++;
+    }
   }
 
-  // done = 100, in_progress = 50, todo = 0, not_applicable = skip
   const maxScore = applicable * 100;
   const currentScore = done * 100 + inProgress * 50;
   const percentage = maxScore > 0 ? Math.round((currentScore / maxScore) * 100) : 0;
@@ -127,7 +135,9 @@ export async function getComplianceStats() {
     inProgress,
     todo,
     total: items.length,
+    critical,
     classification: org?.type ?? "unknown",
     orgName: org?.name ?? "",
+    sector: org?.sector ?? "",
   };
 }
