@@ -35,9 +35,11 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /var/www/kscsystem
+            cd /home/adrian/kscsystem
             git pull origin main
             npm ci
             npx prisma generate --schema=packages/db/prisma/schema.prisma
-            npm run build
-            pm2 restart all || true
+            npm run build -w apps/web
+            npm run build -w apps/landing
+            npm run build -w apps/admin
+            pm2 restart kscsystem-web kscsystem-landing kscsystem-admin
