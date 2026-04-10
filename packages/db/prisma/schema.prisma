@@ -34,13 +34,27 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  checklistProgress ChecklistProgress[]
-  documents         Document[]
-  incidents         Incident[]
-  quizSessions      QuizSession[]
+  checklistProgress   ChecklistProgress[]
+  documents           Document[]
+  incidents           Incident[]
+  quizSessions        QuizSession[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([organizationId])
   @@index([email])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
 }
 
 // --- Organizations ---
@@ -69,6 +83,7 @@ model Organization {
   documents          Document[]
   incidents          Incident[]
   subscription       Subscription?
+  payments           Payment[]
   leads              Lead[]
 
   @@index([nip])
@@ -93,13 +108,14 @@ model QuizQuestion {
 }
 
 model QuizOption {
-  id         String       @id @default(cuid())
-  questionId String
-  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  text       String
-  value      String
-  weight     Float        @default(0)
-  sortOrder  Int          @default(0)
+  id          String       @id @default(cuid())
+  questionId  String
+  question    QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text        String
+  value       String
+  description String?
+  weight      Float        @default(0)
+  sortOrder   Int          @default(0)
 
   answers    QuizAnswer[]
 
@@ -335,7 +351,45 @@ model Subscription {
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
+  payments       Payment[]
+
   @@index([planId])
+}
+
+// --- Payments ---
+
+enum PaymentStatus {
+  new
+  pending
+  confirmed
+  rejected
+  abandoned
+  expired
+  error
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  organizationId  String
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscriptionId  String?
+  subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
+  paynowPaymentId String?       @unique
+  externalId      String        @unique
+  amount          Int           // in grosze
+  currency        String        @default("PLN")
+  description     String?
+  status          PaymentStatus @default(new)
+  planCode        String?
+  billingPeriod   String?       // monthly, yearly
+  paynowData      Json?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([paynowPaymentId])
+  @@index([externalId])
 }
 
 // --- CMS ---

@@ -18,22 +18,22 @@ async function main() {
       sortOrder: 1,
       options: {
         create: [
-          { text: "Energia", value: "energy", weight: 30, sortOrder: 1 },
-          { text: "Transport", value: "transport", weight: 30, sortOrder: 2 },
-          { text: "Bankowość i infrastruktura rynków finansowych", value: "finance", weight: 30, sortOrder: 3 },
-          { text: "Ochrona zdrowia", value: "health", weight: 25, sortOrder: 4 },
-          { text: "Zaopatrzenie w wodę pitną i odprowadzanie ścieków", value: "water", weight: 25, sortOrder: 5 },
-          { text: "Infrastruktura cyfrowa", value: "digital", weight: 30, sortOrder: 6 },
-          { text: "Administracja publiczna", value: "public", weight: 20, sortOrder: 7 },
-          { text: "Przestrzeń kosmiczna", value: "space", weight: 25, sortOrder: 8 },
-          { text: "Usługi pocztowe i kurierskie", value: "postal", weight: 15, sortOrder: 9 },
-          { text: "Gospodarowanie odpadami", value: "waste", weight: 15, sortOrder: 10 },
-          { text: "Produkcja / wytwarzanie / dystrybucja chemikaliów", value: "chemicals", weight: 15, sortOrder: 11 },
-          { text: "Produkcja / przetwarzanie / dystrybucja żywności", value: "food", weight: 15, sortOrder: 12 },
-          { text: "Produkcja (urządzenia medyczne, komputery, elektronika, maszyny, pojazdy)", value: "manufacturing", weight: 15, sortOrder: 13 },
-          { text: "Dostawcy usług cyfrowych (marketplace, wyszukiwarki, social media)", value: "digital_services", weight: 20, sortOrder: 14 },
-          { text: "Badania naukowe", value: "research", weight: 10, sortOrder: 15 },
-          { text: "Inny sektor", value: "other", weight: 0, sortOrder: 16 },
+          { text: "Energia", description: "Wytwarzanie, przesyłanie i dystrybucja energii elektrycznej, gazu, ropy naftowej, ciepła", value: "energy", weight: 30, sortOrder: 1 },
+          { text: "Transport", description: "Lotniczy, kolejowy, wodny, drogowy — przewoźnicy, zarządcy infrastruktury, porty", value: "transport", weight: 30, sortOrder: 2 },
+          { text: "Bankowość i finanse", description: "Banki, instytucje kredytowe, giełdy, izby rozliczeniowe, ubezpieczenia", value: "finance", weight: 30, sortOrder: 3 },
+          { text: "Ochrona zdrowia", description: "Szpitale, kliniki, laboratoria, producenci leków i wyrobów medycznych", value: "health", weight: 25, sortOrder: 4 },
+          { text: "Woda i ścieki", description: "Dostawcy wody pitnej, oczyszczalnie ścieków, wodociągi", value: "water", weight: 25, sortOrder: 5 },
+          { text: "Infrastruktura cyfrowa", description: "Operatorzy DNS, IXP, dostawcy chmury, data center, sieci CDN, rejestry domen", value: "digital", weight: 30, sortOrder: 6 },
+          { text: "Administracja publiczna", description: "Urzędy, ministerstwa, jednostki samorządu terytorialnego", value: "public", weight: 20, sortOrder: 7 },
+          { text: "Przestrzeń kosmiczna", description: "Operatorzy naziemnej infrastruktury satelitarnej", value: "space", weight: 25, sortOrder: 8 },
+          { text: "Poczta i usługi kurierskie", description: "Operatorzy pocztowi, firmy kurierskie", value: "postal", weight: 15, sortOrder: 9 },
+          { text: "Odpady", description: "Firmy zajmujące się zbieraniem, przetwarzaniem i utylizacją odpadów", value: "waste", weight: 15, sortOrder: 10 },
+          { text: "Chemia", description: "Produkcja, wytwarzanie lub dystrybucja substancji chemicznych", value: "chemicals", weight: 15, sortOrder: 11 },
+          { text: "Żywność", description: "Przetwórstwo, dystrybucja, handel hurtowy żywnością", value: "food", weight: 15, sortOrder: 12 },
+          { text: "Produkcja przemysłowa", description: "Urządzenia medyczne, komputery, elektronika, maszyny, pojazdy samochodowe", value: "manufacturing", weight: 15, sortOrder: 13 },
+          { text: "Usługi cyfrowe", description: "Platformy marketplace, wyszukiwarki internetowe, portale społecznościowe", value: "digital_services", weight: 20, sortOrder: 14 },
+          { text: "Badania naukowe", description: "Instytuty badawcze, uczelnie wyższe, jednostki naukowe", value: "research", weight: 10, sortOrder: 15 },
+          { text: "Inny sektor", description: "Twoja branża nie pasuje do powyższych — możesz nadal podlegać ustawie", value: "other", weight: 0, sortOrder: 16 },
         ],
       },
     },
@@ -84,17 +84,33 @@ async function main() {
     update: {},
     create: {
       code: "Q004",
-      text: "Czy Twoja organizacja świadczy usługi wymienione w załączniku nr 1 lub 2 do ustawy o KSC?",
-      description: "Załączniki do ustawy wymieniają konkretne typy usług",
+      text: "Czy Twoja organizacja świadczy usługi z poniższych kategorii?",
+      description: "Ustawa o KSC dzieli usługi na kluczowe i ważne. Sprawdź, czy Twoja działalność pasuje do jednej z nich.",
       type: "single",
       category: "Klasyfikacja",
       sortOrder: 4,
       options: {
         create: [
-          { text: "Tak, z załącznika nr 1 (usługi kluczowe)", value: "annex1", weight: 20, sortOrder: 1 },
-          { text: "Tak, z załącznika nr 2 (usługi ważne)", value: "annex2", weight: 10, sortOrder: 2 },
-          { text: "Nie jestem pewien/pewna", value: "unsure", weight: 5, sortOrder: 3 },
-          { text: "Nie", value: "no", weight: 0, sortOrder: 4 },
+          {
+            text: "Tak — usługi kluczowe",
+            description: "Energia (prąd, gaz, ropa), transport (lotniczy, kolejowy, wodny, drogowy), bankowość i finanse, ochrona zdrowia (szpitale, laboratoria), woda pitna i ścieki, infrastruktura cyfrowa (DNS, IXP, chmura, data center), administracja publiczna",
+            value: "annex1", weight: 20, sortOrder: 1,
+          },
+          {
+            text: "Tak — usługi ważne",
+            description: "Usługi pocztowe i kurierskie, gospodarowanie odpadami, produkcja chemikaliów, przetwórstwo żywności, produkcja (urządzenia medyczne, elektronika, maszyny, pojazdy), usługi cyfrowe (marketplace, wyszukiwarki, social media), badania naukowe",
+            value: "annex2", weight: 10, sortOrder: 2,
+          },
+          {
+            text: "Nie jestem pewien/pewna",
+            description: "Nic nie szkodzi — pomożemy Ci to ustalić po wypełnieniu quizu",
+            value: "unsure", weight: 5, sortOrder: 3,
+          },
+          {
+            text: "Nie, żadna z powyższych",
+            description: "Twoja organizacja może nadal podlegać ustawie z innych powodów",
+            value: "no", weight: 0, sortOrder: 4,
+          },
         ],
       },
     },
@@ -130,12 +146,10 @@ async function main() {
     { name: "Nie podlega", description: "Score < 30 → nie podlega", condition: { field: "totalScore", operator: "lt", value: 30 }, score: 0, category: "classification", sortOrder: 3 },
   ];
 
+  // Clear existing rules and recreate
+  await prisma.scoringRule.deleteMany({});
   for (const rule of scoringRules) {
-    await prisma.scoringRule.upsert({
-      where: { id: rule.name },
-      update: {},
-      create: rule,
-    });
+    await prisma.scoringRule.create({ data: rule });
   }
   console.log("✓ Scoring rules created");
 

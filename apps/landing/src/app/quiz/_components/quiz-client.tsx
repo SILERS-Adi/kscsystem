@@ -16,6 +16,7 @@ interface Question {
     id: string;
     text: string;
     value: string;
+    description: string | null;
   }[];
 }
 
@@ -80,13 +81,16 @@ export function QuizClient({ questions }: { questions: Question[] }) {
               <button
                 key={opt.id}
                 onClick={() => selectAnswer(opt.id)}
-                className={`w-full text-left rounded-xl border p-4 text-sm font-medium transition-all duration-200 ${
+                className={`w-full text-left rounded-xl border p-4 transition-all duration-200 ${
                   answers[question.id] === opt.id
                     ? "border-brand-500 bg-brand-500/10 text-brand-300"
                     : "border-border bg-surface-100 text-gray-300 hover:bg-surface-200 hover:border-border-light"
                 }`}
               >
-                {opt.text}
+                <span className="text-sm font-medium">{opt.text}</span>
+                {opt.description && (
+                  <span className="block mt-1 text-xs text-gray-500 font-normal">{opt.description}</span>
+                )}
               </button>
             ))}
           </div>

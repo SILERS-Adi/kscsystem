@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@kscsystem/db";
+import { sendWelcomeEmail } from "@kscsystem/email";
 import { cookies } from "next/headers";
 import type { OrganizationType } from "@prisma/client";
 import { hashPassword, createSession } from "@/lib/auth";
@@ -122,6 +123,9 @@ export async function registerUser(formData: FormData) {
       },
     });
   }
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail(user.email, user.name ?? name).catch(console.error);
 
   // Create auth session
   await createSession({

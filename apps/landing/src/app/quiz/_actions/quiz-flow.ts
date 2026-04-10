@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@kscsystem/db";
+import { sendQuizReportEmail } from "@kscsystem/email";
 
 export async function getActiveQuizQuestions() {
   return prisma.quizQuestion.findMany({
@@ -40,14 +41,32 @@ export async function submitQuiz(answers: Record<string, string>) {
     }
   }
 
-  // 3. Determine classification based on score thresholds
-  let classification: string;
-  if (totalScore >= 60) {
-    classification = "essential";
-  } else if (totalScore >= 30) {
-    classification = "important";
-  } else {
-    classification = "not_applicable";
+  // 3. Determine classification from ScoringRules in DB
+  let classification = "not_applicable";
+  const rules = await prisma.scoringRule.findMany({
+    where: { isActive: true, category: "classification" },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  for (const rule of rules) {
+    const cond = rule.condition as { field: string; operator: string; value: number };
+    if (cond.field === "totalScore") {
+      const match =
+        cond.operator === "gte" ? totalScore >= cond.value :
+        cond.operator === "gt"  ? totalScore > cond.value :
+        cond.operator === "lte" ? totalScore <= cond.value :
+        cond.operator === "lt"  ? totalScore < cond.value :
+        cond.operator === "eq"  ? totalScore === cond.value :
+        false;
+
+      if (match) {
+        classification =
+          rule.name === "Podmiot kluczowy" ? "essential" :
+          rule.name === "Podmiot ważny" ? "important" :
+          "not_applicable";
+        break;
+      }
+    }
   }
 
   // 4. Update session with score and classification
@@ -116,6 +135,16 @@ export async function saveLead(data: {
     where: { id: data.sessionId },
     data: { leadId: lead.id },
   });
+
+  // Send quiz report email (non-blocking)
+  if (session?.classification && session?.score != null) {
+    sendQuizReportEmail(
+      data.email,
+      data.name,
+      session.classification,
+      session.score
+    ).catch(console.error);
+  }
 
   return { leadId: lead.id };
 }

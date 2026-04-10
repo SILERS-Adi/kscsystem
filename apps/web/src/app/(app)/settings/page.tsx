@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Badge } from "@kscsystem/ui";
+import { CreditCard, ArrowRight } from "lucide-react";
 
 export default function SettingsPage() {
   return (
@@ -50,6 +52,24 @@ export default function SettingsPage() {
               <Input type="password" placeholder="Min. 8 znaków" />
             </div>
             <Button size="sm" variant="secondary">Zmień hasło</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Subskrypcja i platnosci</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-400 mb-4">
+              Zarzadzaj swoim planem, metoda platnosci i przegladaj historie transakcji.
+            </p>
+            <Button size="sm" asChild>
+              <Link href="/settings/billing">
+                <CreditCard size={16} />
+                Zarzadzaj subskrypcja
+                <ArrowRight size={16} />
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

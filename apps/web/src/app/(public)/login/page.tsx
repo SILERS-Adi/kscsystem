@@ -46,6 +46,12 @@ export default function LoginPage() {
               <Input name="password" type="password" placeholder="••••••••" required />
             </div>
 
+            <div className="text-right">
+              <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-brand-400 transition-colors">
+                Nie pamietasz hasla?
+              </Link>
+            </div>
+
             {error && (
               <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
                 {error}

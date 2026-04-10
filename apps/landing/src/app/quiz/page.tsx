@@ -27,6 +27,7 @@ export default async function QuizPage() {
       id: o.id,
       text: o.text,
       value: o.value,
+      description: o.description ?? null,
     })),
   }));
 
