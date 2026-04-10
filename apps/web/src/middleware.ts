@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "kscsystem-jwt-secret-change-in-production-2026"
 );
 
-const PUBLIC_PATHS = ["/login", "/register", "/_next", "/favicon.ico", "/api"];
+const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/_next", "/favicon.ico", "/api"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -36,6 +36,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|login|register|api).*)",
+    "/((?!_next/static|_next/image|favicon.ico|login|register|forgot-password|reset-password|api).*)",
   ],
 };
