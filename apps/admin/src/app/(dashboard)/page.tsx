@@ -2,19 +2,19 @@ import { prisma } from "@kscsystem/db";
 import { StatCard } from "@kscsystem/ui";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@kscsystem/ui";
-import { Users, Building2, ClipboardCheck, Megaphone, HelpCircle, Target } from "lucide-react";
+import { Users, Building2, ClipboardCheck, Megaphone, HelpCircle, Eye } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const [orgCount, userCount, leadCount, questionCount, checklistCount, ruleCount, recentLeads, recentOrgs] =
+  const [orgCount, userCount, leadCount, questionCount, checklistCount, viewCount, recentLeads, recentOrgs] =
     await Promise.all([
       prisma.organization.count(),
       prisma.user.count(),
       prisma.lead.count(),
       prisma.quizQuestion.count({ where: { isActive: true } }),
       prisma.checklistItem.count({ where: { isActive: true } }),
-      prisma.scoringRule.count({ where: { isActive: true } }),
+      prisma.pageView.count(),
       prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
       prisma.organization.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
     ]);
@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
         <StatCard label="Leady" value={leadCount} icon={<Megaphone size={20} />} />
         <StatCard label="Pytania quizu" value={questionCount} icon={<HelpCircle size={20} />} />
         <StatCard label="Checklista" value={checklistCount} icon={<ClipboardCheck size={20} />} />
-        <StatCard label="Reguły scoringu" value={ruleCount} icon={<Target size={20} />} />
+        <StatCard label="Wejścia (landing)" value={viewCount} icon={<Eye size={20} />} />
       </div>
 
       {/* Panels */}

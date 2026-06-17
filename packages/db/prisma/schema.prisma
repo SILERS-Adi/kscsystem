@@ -191,6 +191,22 @@ model Lead {
   @@index([organizationId])
 }
 
+// --- Analytics ---
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String                        // np. "/", "/quiz", "/wynik"
+  referrer  String?
+  source    String?  @default("landing")  // landing, web
+  sessionId String?                        // anonimowy identyfikator wizyty (cookie)
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+  @@index([sessionId])
+}
+
 // --- Checklist ---
 
 model ChecklistItem {
