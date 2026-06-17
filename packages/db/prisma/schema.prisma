@@ -39,6 +39,7 @@ model User {
   incidents           Incident[]
   quizSessions        QuizSession[]
   passwordResetTokens PasswordResetToken[]
+  auditsConducted     Audit[]
 
   @@index([organizationId])
   @@index([email])
@@ -85,6 +86,7 @@ model Organization {
   subscription       Subscription?
   payments           Payment[]
   leads              Lead[]
+  audits             Audit[]
 
   @@index([nip])
 }
@@ -223,31 +225,84 @@ model ChecklistItem {
   updatedAt     DateTime @updatedAt
 
   progress      ChecklistProgress[]
+  auditAnswers  AuditAnswer[]
 }
 
 enum ChecklistStatus {
-  todo
-  in_progress
-  done
-  not_applicable
+  todo            // nie mamy
+  in_progress     // częściowo
+  done            // mamy
+  not_applicable  // nie dotyczy
 }
 
 model ChecklistProgress {
-  id             String          @id @default(cuid())
-  organizationId String
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  itemId         String
-  item           ChecklistItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  status         ChecklistStatus @default(todo)
-  completedAt    DateTime?
-  completedById  String?
-  completedBy    User?           @relation(fields: [completedById], references: [id])
-  note           String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id              String          @id @default(cuid())
+  organizationId  String
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  itemId          String
+  item            ChecklistItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  status          ChecklistStatus @default(todo)
+  completedAt     DateTime?
+  completedById   String?
+  completedBy     User?           @relation(fields: [completedById], references: [id])
+  note            String?
+  evidenceUrl     String?         // link do dowodu / dokumentu
+  responsibleName String?         // osoba odpowiedzialna
+  dueDate         DateTime?       // termin realizacji
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@unique([organizationId, itemId])
   @@index([organizationId])
+  @@index([itemId])
+}
+
+// --- Audyt (datowane migawki stanu zgodności) ---
+
+enum AuditStatus {
+  draft
+  completed
+}
+
+model Audit {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conductedById  String?
+  conductedBy    User?        @relation(fields: [conductedById], references: [id])
+  conductedByType String      @default("consultant") // consultant, self
+  classification String?      // migawka klasyfikacji firmy w chwili audytu
+  status         AuditStatus  @default(draft)
+  readiness      Float?       // % gotowości ważony priorytetem
+  readinessRaw   Float?       // % gotowości surowy (bez wag)
+  itemsTotal     Int          @default(0)
+  itemsDone      Int          @default(0)
+  note           String?
+  completedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  answers        AuditAnswer[]
+
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+model AuditAnswer {
+  id              String          @id @default(cuid())
+  auditId         String
+  audit           Audit           @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  itemId          String
+  item            ChecklistItem   @relation(fields: [itemId], references: [id])
+  status          ChecklistStatus @default(todo)
+  note            String?
+  evidenceUrl     String?
+  responsibleName String?
+  dueDate         DateTime?
+  createdAt       DateTime        @default(now())
+
+  @@unique([auditId, itemId])
+  @@index([auditId])
   @@index([itemId])
 }
 
