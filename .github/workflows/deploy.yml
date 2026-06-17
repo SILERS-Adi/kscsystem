@@ -43,4 +43,6 @@ jobs:
             npm run build -w apps/web
             npm run build -w apps/landing
             npm run build -w apps/admin
-            pm2 restart kscsystem-web kscsystem-landing kscsystem-admin
+            pm2 restart kscsystem-web kscsystem-landing
+            pm2 restart kscsystem-admin 2>/dev/null || (cd /home/adrian/kscsystem/apps/admin && pm2 start npm --name kscsystem-admin -- start)
+            pm2 save
