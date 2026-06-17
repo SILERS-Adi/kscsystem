@@ -1,9 +1,17 @@
 "use client";
 
 import { Avatar } from "@kscsystem/ui";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
+import { logoutAdmin } from "@/app/_actions/auth";
 
-export function AdminTopbar() {
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function AdminTopbar({ name, role }: { name: string; role: string }) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface/80 backdrop-blur-xl px-6">
       {/* Search */}
@@ -26,12 +34,22 @@ export function AdminTopbar() {
         <div className="h-6 w-px bg-border" />
 
         <div className="flex items-center gap-3">
-          <Avatar fallback="SA" size="sm" />
+          <Avatar fallback={initials(name)} size="sm" />
           <div className="hidden sm:block">
-            <p className="text-sm font-medium text-white">Super Admin</p>
-            <p className="text-xs text-gray-500">superadmin</p>
+            <p className="text-sm font-medium text-white">{name}</p>
+            <p className="text-xs text-gray-500">{role || "—"}</p>
           </div>
         </div>
+
+        <form action={logoutAdmin}>
+          <button
+            type="submit"
+            title="Wyloguj się"
+            className="p-2 rounded-lg text-gray-400 hover:bg-surface-100 hover:text-white transition-colors"
+          >
+            <LogOut size={18} />
+          </button>
+        </form>
       </div>
     </header>
   );
