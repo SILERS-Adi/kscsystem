@@ -15,6 +15,7 @@ import { SidebarNav } from "./sidebar-nav";
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
   { label: "Checklista", href: "/checklist", icon: "ClipboardCheck" },
+  { label: "Audyt", href: "/audit", icon: "ClipboardList" },
   { label: "Dokumenty", href: "/documents", icon: "FileText" },
   { label: "Incydenty", href: "/incidents", icon: "AlertTriangle" },
   { label: "Profil firmy", href: "/profile", icon: "Building2" },

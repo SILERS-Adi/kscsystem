@@ -6,6 +6,7 @@ import { cn } from "@kscsystem/ui";
 import {
   LayoutDashboard,
   ClipboardCheck,
+  ClipboardList,
   Building2,
   FileText,
   AlertTriangle,
@@ -15,6 +16,7 @@ import {
 const iconMap: Record<string, typeof LayoutDashboard> = {
   LayoutDashboard,
   ClipboardCheck,
+  ClipboardList,
   Building2,
   FileText,
   AlertTriangle,
