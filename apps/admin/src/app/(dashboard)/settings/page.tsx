@@ -18,7 +18,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Email kontaktowy</label>
-              <Input defaultValue="kontakt@kscsystem.pl" />
+              <Input defaultValue="biuro@silers.pl" />
             </div>
             <Button size="sm">Zapisz zmiany</Button>
           </CardContent>
@@ -39,7 +39,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Panel admin</label>
-              <Input defaultValue="panel.silers.pl" disabled />
+              <Input defaultValue="admin.kscsystem.pl" disabled />
             </div>
           </CardContent>
         </Card>
