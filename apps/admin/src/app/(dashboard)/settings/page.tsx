@@ -39,7 +39,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Panel admin</label>
-              <Input defaultValue="admin.kscsystem.pl" disabled />
+              <Input defaultValue="kscsystem.pl/admin" disabled />
             </div>
           </CardContent>
         </Card>

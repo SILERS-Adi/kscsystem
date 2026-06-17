@@ -76,7 +76,7 @@ export function AdminSidebar() {
       <div className="border-t border-border p-4">
         <div className="text-xs text-gray-500">
           <p>KSCSYSTEM Admin</p>
-          <p className="text-gray-600">admin.kscsystem.pl</p>
+          <p className="text-gray-600">kscsystem.pl/admin</p>
         </div>
       </div>
     </aside>

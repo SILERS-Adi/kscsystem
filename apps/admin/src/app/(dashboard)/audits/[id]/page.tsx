@@ -67,7 +67,7 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
           {readOnly ? "Audyt zakończony" : "Szkic — w trakcie"}
         </Badge>
 
-        <a href={`/audits/${audit.id}/report`} target="_blank" rel="noopener noreferrer">
+        <a href={`/admin/audits/${audit.id}/report`} target="_blank" rel="noopener noreferrer">
           <Button variant="outline" size="sm">
             <FileDown size={16} /> Raport PDF
           </Button>

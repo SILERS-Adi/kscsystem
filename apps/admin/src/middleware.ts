@@ -28,14 +28,19 @@ export async function middleware(request: NextRequest) {
   // Zalogowany na /login → przekieruj do panelu
   if (pathname === "/login") {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/", request.url));
+      const home = request.nextUrl.clone();
+      home.pathname = "/";
+      home.search = "";
+      return NextResponse.redirect(home);
     }
     return NextResponse.next();
   }
 
   // Pozostałe trasy wymagają sesji superadmina
   if (!isLoggedIn) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.search = "";
     if (pathname !== "/") loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
