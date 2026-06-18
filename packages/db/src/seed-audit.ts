@@ -36,7 +36,7 @@ const SECTIONS: S[] = [
       { code: "org_employees", text: "Liczba pracowników", input: "number" },
       { code: "org_locations", text: "Liczba lokalizacji", input: "number" },
       { code: "org_industry", text: "Branża", input: "text" },
-      { code: "org_external_it", text: "Zewnętrzna firma IT (nazwa lub „—")", input: "text" },
+      { code: "org_external_it", text: "Zewnętrzna firma IT (nazwa lub brak)", input: "text" },
       { code: "org_security_owner", text: "Osoba odpowiedzialna za cyberbezpieczeństwo", input: "text" },
     ],
   },
