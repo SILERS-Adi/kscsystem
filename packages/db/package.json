@@ -13,6 +13,7 @@
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "db:seed": "npx tsx src/seed.ts",
+    "db:seed-audit": "npx tsx src/seed-audit.ts",
     "db:set-admin-password": "npx tsx src/set-admin-password.ts"
   },
   "dependencies": {

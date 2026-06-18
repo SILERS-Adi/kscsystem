@@ -25,15 +25,15 @@ export default async function AdminDashboardPage() {
       prisma.pageView.count(),
       prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
       prisma.organization.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-      prisma.audit.aggregate({ _avg: { readiness: true }, where: { status: "completed" } }),
-      prisma.audit.findMany({
+      prisma.auditSession.aggregate({ _avg: { maturityScore: true }, where: { status: "completed" } }),
+      prisma.auditSession.findMany({
         orderBy: { createdAt: "desc" },
         take: 5,
         include: { organization: { select: { name: true } } },
       }),
     ]);
 
-  const avgReadiness = auditAvg._avg.readiness != null ? Math.round(auditAvg._avg.readiness) : null;
+  const avgReadiness = auditAvg._avg.maturityScore != null ? Math.round(auditAvg._avg.maturityScore) : null;
 
   return (
     <div>
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
         <StatCard label="Checklista" value={checklistCount} icon={<ClipboardCheck size={20} />} />
         <StatCard label="Wejścia (landing)" value={viewCount} icon={<Eye size={20} />} />
         <StatCard
-          label="Śr. gotowość (audyty)"
+          label="Śr. dojrzałość (audyty)"
           value={avgReadiness != null ? `${avgReadiness}%` : "—"}
           icon={<ClipboardList size={20} />}
         />
@@ -114,26 +114,25 @@ export default async function AdminDashboardPage() {
           <CardContent>
             {recentAudits.length === 0 ? (
               <p className="text-sm text-gray-500 py-4 text-center">
-                Brak audytów. Przejdź do zakładki „Audyty", aby przeprowadzić pierwszy.
+                Brak audytów. Przejdź do zakładki „Audyt", aby przeprowadzić pierwszy.
               </p>
             ) : (
               <div className="space-y-2">
                 {recentAudits.map((a) => (
                   <Link
                     key={a.id}
-                    href={`/audits/${a.id}`}
+                    href={`/audit/${a.id}`}
                     className="flex items-center justify-between gap-4 rounded-lg border border-border bg-surface-50 px-4 py-3 hover:bg-surface-100 transition-colors"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-white truncate">{a.organization.name}</p>
                       <p className="text-xs text-gray-500">
                         {a.createdAt.toLocaleDateString("pl-PL")} ·{" "}
-                        {a.conductedByType === "self" ? "Samoocena" : "Konsultant"} ·{" "}
-                        {a.status === "completed" ? "zakończony" : "szkic"}
+                        {a.status === "completed" ? "zakończony" : a.status === "in_progress" ? "w trakcie" : "szkic"}
                       </p>
                     </div>
-                    <span className={`text-base font-bold tabular-nums ${readinessColor(a.readiness)}`}>
-                      {a.readiness != null ? `${a.readiness}%` : "—"}
+                    <span className={`text-base font-bold tabular-nums ${readinessColor(a.maturityScore)}`}>
+                      {a.maturityScore != null ? `${Math.round(a.maturityScore)}%` : "—"}
                     </span>
                   </Link>
                 ))}

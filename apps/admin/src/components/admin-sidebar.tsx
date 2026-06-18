@@ -23,7 +23,7 @@ const navItems = [
   { label: "Quiz", href: "/quiz", icon: HelpCircle },
   { label: "Scoring", href: "/scoring", icon: Target },
   { label: "Checklista", href: "/checklist", icon: ClipboardCheck },
-  { label: "Audyty", href: "/audits", icon: ClipboardList },
+  { label: "Audyt", href: "/audit", icon: ClipboardList },
   { label: "Szablony", href: "/templates", icon: FileText },
   { label: "Leady", href: "/leads", icon: Megaphone },
   { label: "Organizacje", href: "/organizations", icon: Building2 },

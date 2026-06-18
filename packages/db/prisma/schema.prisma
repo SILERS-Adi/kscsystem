@@ -39,7 +39,7 @@ model User {
   incidents           Incident[]
   quizSessions        QuizSession[]
   passwordResetTokens PasswordResetToken[]
-  auditsConducted     Audit[]
+  auditSessions       AuditSession[]
 
   @@index([organizationId])
   @@index([email])
@@ -86,7 +86,7 @@ model Organization {
   subscription       Subscription?
   payments           Payment[]
   leads              Lead[]
-  audits             Audit[]
+  auditSessions      AuditSession[]
 
   @@index([nip])
 }
@@ -225,7 +225,6 @@ model ChecklistItem {
   updatedAt     DateTime @updatedAt
 
   progress      ChecklistProgress[]
-  auditAnswers  AuditAnswer[]
 }
 
 enum ChecklistStatus {
@@ -257,53 +256,163 @@ model ChecklistProgress {
   @@index([itemId])
 }
 
-// --- Audyt (datowane migawki stanu zgodności) ---
+// ============================================================
+// --- Audyt Startowy / Gap Analysis (moduł konsultingowy) ---
+// ============================================================
 
-enum AuditStatus {
+enum AuditAnswerStatus {
+  yes             // posiada
+  partial         // wdrożone częściowo
+  no              // nie posiada
+  not_applicable  // nie dotyczy
+}
+
+enum AuditSessionStatus {
   draft
+  in_progress
   completed
 }
 
-model Audit {
-  id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  conductedById  String?
-  conductedBy    User?        @relation(fields: [conductedById], references: [id])
-  conductedByType String      @default("consultant") // consultant, self
-  classification String?      // migawka klasyfikacji firmy w chwili audytu
-  status         AuditStatus  @default(draft)
-  readiness      Float?       // % gotowości ważony priorytetem
-  readinessRaw   Float?       // % gotowości surowy (bez wag)
-  itemsTotal     Int          @default(0)
-  itemsDone      Int          @default(0)
-  note           String?
-  completedAt    DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+enum FindingSeverity {
+  critical
+  high
+  medium
+  low
+}
+
+enum MaturityLevel {
+  initial       // Początkowy
+  basic         // Podstawowy
+  intermediate  // Średni
+  advanced      // Zaawansowany
+  mature        // Dojrzały
+}
+
+// Szablon audytu (wersjonowany zestaw sekcji i pytań)
+model AuditTemplate {
+  id          String         @id @default(cuid())
+  name        String
+  version     Int            @default(1)
+  description String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  sections    AuditSection[]
+  sessions    AuditSession[]
+
+  @@unique([name, version])
+}
+
+model AuditSection {
+  id          String          @id @default(cuid())
+  templateId  String
+  template    AuditTemplate   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  code        String          // np. "org_info"
+  title       String
+  description String?
+  sortOrder   Int             @default(0)
+
+  questions   AuditQuestion[]
+
+  @@index([templateId])
+}
+
+model AuditQuestion {
+  id             String          @id @default(cuid())
+  sectionId      String
+  section        AuditSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  code           String          // np. "assets_servers"
+  text           String
+  helpText       String?
+  weight         Int             @default(1)              // waga w scoringu dojrzałości
+  severity       FindingSeverity @default(medium)         // istotność braku gdy NO
+  recommendation String?                                  // domyślne zalecenie gdy NO/PARTIAL
+  inputType      String          @default("status")       // status, number, text (np. liczba pracowników)
+  sortOrder      Int             @default(0)
 
   answers        AuditAnswer[]
+
+  @@index([sectionId])
+}
+
+// Sesja audytu = przeprowadzony audyt dla organizacji (wersjonowany)
+model AuditSession {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  templateId     String
+  template       AuditTemplate       @relation(fields: [templateId], references: [id])
+  templateVersion Int                @default(1)          // migawka wersji szablonu
+  conductedById  String?
+  conductedBy    User?               @relation(fields: [conductedById], references: [id])
+  status         AuditSessionStatus  @default(draft)
+  maturityScore  Float?                                   // 0-100
+  maturityLevel  MaturityLevel?
+  note           String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  answers         AuditAnswer[]
+  findings        AuditFinding[]
+  recommendations AuditRecommendation[]
 
   @@index([organizationId])
   @@index([createdAt])
 }
 
 model AuditAnswer {
-  id              String          @id @default(cuid())
-  auditId         String
-  audit           Audit           @relation(fields: [auditId], references: [id], onDelete: Cascade)
-  itemId          String
-  item            ChecklistItem   @relation(fields: [itemId], references: [id])
-  status          ChecklistStatus @default(todo)
-  note            String?
-  evidenceUrl     String?
-  responsibleName String?
-  dueDate         DateTime?
-  createdAt       DateTime        @default(now())
+  id                String             @id @default(cuid())
+  sessionId         String
+  session           AuditSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          AuditQuestion      @relation(fields: [questionId], references: [id])
+  status            AuditAnswerStatus?                    // null = jeszcze nieodpowiedziane
+  valueText         String?                              // dla pytań tekstowych/liczbowych
+  note              String?
+  responsiblePerson String?
+  dueDate           DateTime?
+  attachmentUrl     String?
+  updatedAt         DateTime           @updatedAt
 
-  @@unique([auditId, itemId])
-  @@index([auditId])
-  @@index([itemId])
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+  @@index([questionId])
+}
+
+model AuditFinding {
+  id          String          @id @default(cuid())
+  sessionId   String
+  session     AuditSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId  String?
+  severity    FindingSeverity
+  title       String
+  description String?
+  sectionCode String?
+  createdAt   DateTime        @default(now())
+
+  recommendations AuditRecommendation[]
+
+  @@index([sessionId])
+}
+
+model AuditRecommendation {
+  id                String        @id @default(cuid())
+  sessionId         String
+  session           AuditSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  findingId         String?
+  finding           AuditFinding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
+  priority          Int           @default(0)
+  title             String
+  description       String?
+  status            String        @default("open") // open, in_progress, done
+  responsiblePerson String?
+  dueDate           DateTime?
+  createdAt         DateTime      @default(now())
+
+  @@index([sessionId])
 }
 
 // --- Documents ---
