@@ -5,12 +5,28 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Build wykonuje się na serwerze (ma DATABASE_URL i env produkcyjne),
-      # dlatego nie budujemy na runnerze GitHuba — tu tylko wyzwalamy deploy po SSH.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Build all apps
+        run: npm run build
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
         with:
@@ -18,18 +34,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
-          command_timeout: "20m"
           script: |
             cd /home/adrian/kscsystem
             git pull origin main
             npm ci
             npx prisma generate --schema=packages/db/prisma/schema.prisma
-            npx prisma db push --schema=packages/db/prisma/schema.prisma --skip-generate
             npm run db:seed-audit -w @kscsystem/db || true
             npm run build -w apps/web
             npm run build -w apps/landing
             npm run build -w apps/admin
-            pm2 restart kscsystem-web kscsystem-landing
-            pm2 restart kscsystem-admin 2>/dev/null || (cd /home/adrian/kscsystem/apps/admin && pm2 start npm --name kscsystem-admin -- start)
-            pm2 save
-            sudo -n true 2>/dev/null && bash scripts/fix-admin-nginx.sh || echo "nginx /admin: pomijam (brak passwordless sudo) — uruchom recznie: bash scripts/fix-admin-nginx.sh"
+            pm2 restart kscsystem-web kscsystem-landing kscsystem-admin
