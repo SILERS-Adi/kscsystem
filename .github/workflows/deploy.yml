@@ -47,3 +47,4 @@ jobs:
             pm2 restart kscsystem-web kscsystem-landing
             pm2 restart kscsystem-admin 2>/dev/null || (cd /home/adrian/kscsystem/apps/admin && pm2 start npm --name kscsystem-admin -- start)
             pm2 save
+            sudo -n true 2>/dev/null && bash scripts/fix-admin-nginx.sh || echo "nginx /admin: pomijam (brak passwordless sudo) — uruchom recznie: bash scripts/fix-admin-nginx.sh"
