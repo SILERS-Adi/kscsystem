@@ -44,3 +44,4 @@ jobs:
             npm run build -w apps/landing
             npm run build -w apps/admin
             pm2 restart kscsystem-web kscsystem-landing kscsystem-admin
+            sudo -n true 2>/dev/null && bash scripts/fix-admin-nginx.sh || echo "nginx /admin: pominieto (brak passwordless sudo)"
