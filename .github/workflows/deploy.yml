@@ -5,28 +5,12 @@ on:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma client
-        run: npm run db:generate
-
-      - name: Build all apps
-        run: npm run build
-
+      # Build wykonuje się na serwerze (ma DATABASE_URL i env produkcyjne),
+      # dlatego nie budujemy na runnerze GitHuba — tu tylko wyzwalamy deploy po SSH.
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
         with:
@@ -34,6 +18,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
+          command_timeout: "20m"
           script: |
             cd /home/adrian/kscsystem
             git pull origin main
