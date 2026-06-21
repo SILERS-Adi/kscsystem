@@ -49,5 +49,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  // "/" musi byc jawnie — przy basePath "/admin" matcher z grupą nie łapie gołego /admin (root),
+  // przez co dashboard renderował się bez sesji. Patrz: auth bypass na /admin.
+  matcher: ["/", "/((?!_next/static|_next/image|favicon.ico|api).*)"],
 };
