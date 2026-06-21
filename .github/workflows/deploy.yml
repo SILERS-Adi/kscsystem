@@ -40,6 +40,7 @@ jobs:
             npm ci
             npx prisma generate --schema=packages/db/prisma/schema.prisma
             npm run db:seed-audit -w @kscsystem/db || true
+            npm run db:seed-discovery -w @kscsystem/db || true
             npm run build -w apps/web
             npm run build -w apps/landing
             npm run build -w apps/admin

@@ -87,6 +87,7 @@ model Organization {
   payments           Payment[]
   leads              Lead[]
   auditSessions      AuditSession[]
+  remediationActions RemediationAction[]
 
   @@index([nip])
 }
@@ -413,6 +414,35 @@ model AuditRecommendation {
   createdAt         DateTime      @default(now())
 
   @@index([sessionId])
+}
+
+// Trwały rejestr działań naprawczych na poziomie ORGANIZACJI (ponad pojedynczą sesją).
+// Zalecenia z audytu "promują się" tutaj; kolejny audyt weryfikuje i zamyka je
+// (questionCode łączy ten sam punkt między audytami #N i #N+1).
+model RemediationAction {
+  id                String           @id @default(cuid())
+  organizationId    String
+  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  questionCode      String?          // łącznik między audytami (kod pytania)
+  sectionCode       String?
+  severity          FindingSeverity?
+  priority          Int              @default(3)
+  title             String
+  description       String?
+  status            String           @default("open") // open, in_progress, done, deferred, accepted_risk
+  responsiblePerson String?
+  dueDate           DateTime?
+  evidenceUrl       String?
+  note              String?
+  sourceSessionId   String?          // audyt, który wykrył lukę
+  closedSessionId   String?          // audyt, który zweryfikował zamknięcie
+  closedAt          DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([organizationId, questionCode])
+  @@index([organizationId])
+  @@index([status])
 }
 
 // --- Documents ---

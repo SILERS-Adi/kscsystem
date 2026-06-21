@@ -198,6 +198,32 @@ export function maturityLevelFromScore(score: number): MaturityLevel {
   return "initial";
 }
 
+// --- Remediacja (rejestr działań naprawczych ponad sesjami audytu) ---
+
+export type RemediationStatus = "open" | "in_progress" | "done" | "deferred" | "accepted_risk";
+
+export const REMEDIATION_STATUS_LABELS: Record<RemediationStatus, string> = {
+  open: "Otwarte",
+  in_progress: "W trakcie",
+  done: "Wykonane",
+  deferred: "Odroczone",
+  accepted_risk: "Ryzyko zaakceptowane",
+};
+
+/** Kolejność statusów w przepływie pracy (do sortowania/kroków). */
+export const REMEDIATION_STATUS_ORDER: RemediationStatus[] = [
+  "open",
+  "in_progress",
+  "done",
+  "deferred",
+  "accepted_risk",
+];
+
+/** Czy działanie jest "aktywne" (wymaga jeszcze pracy). */
+export function isRemediationActive(status: string): boolean {
+  return status === "open" || status === "in_progress";
+}
+
 export interface MaturityInput {
   weight: number;
   status: AuditAnswerStatus | null;

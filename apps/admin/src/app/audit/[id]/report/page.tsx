@@ -106,16 +106,21 @@ export default async function AuditReportPage({ params }: { params: Promise<{ id
           </p>
         ) : (
           <table style={{ marginBottom: 22 }}>
-            <thead><tr><th style={{ width: 70 }}>Istotność</th><th>Luka</th><th>Rekomendacja</th></tr></thead>
+            <thead><tr><th style={{ width: 64 }}>Istotność</th><th>Luka</th><th>Rekomendacja</th><th style={{ width: 110 }}>Odpowiedzialny</th><th style={{ width: 78 }}>Termin</th></tr></thead>
             <tbody>
               {severities.flatMap((s) =>
-                audit.findings.filter((f) => f.severity === s).map((f) => (
-                  <tr key={f.id}>
-                    <td style={{ color: sevColor[s], fontWeight: 700 }}>{SEVERITY_LABELS[s]}</td>
-                    <td>{f.title}</td>
-                    <td>{recsByFinding.get(f.id)?.title ?? "—"}</td>
-                  </tr>
-                ))
+                audit.findings.filter((f) => f.severity === s).map((f) => {
+                  const rec = recsByFinding.get(f.id);
+                  return (
+                    <tr key={f.id}>
+                      <td style={{ color: sevColor[s], fontWeight: 700 }}>{SEVERITY_LABELS[s]}</td>
+                      <td>{f.title}</td>
+                      <td>{rec?.title ?? "—"}</td>
+                      <td>{rec?.responsiblePerson ?? "—"}</td>
+                      <td>{rec?.dueDate ? new Date(rec.dueDate).toLocaleDateString("pl-PL") : "—"}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
