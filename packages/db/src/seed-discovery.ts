@@ -468,7 +468,7 @@ const SECTIONS: S[] = [
     questions: [
       { code: "d_hi_prev_audit", text: "Poprzednie audyty bezpieczeństwa (data, zakres, wykonawca)" },
       { code: "d_hi_recommendations", text: "Status realizacji wcześniejszych zaleceń" },
-      { code: "d_hi_pains", text: "Znane problemy / „bolączki" zgłaszane przez klienta", severity: "high" },
+      { code: "d_hi_pains", text: "Znane problemy / bolączki zgłaszane przez klienta", severity: "high" },
       { code: "d_hi_plans", text: "Planowane zmiany/inwestycje IT w najbliższym roku" },
     ],
   },
