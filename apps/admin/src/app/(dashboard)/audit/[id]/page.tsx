@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, StatCard } from "@kscsystem/ui";
-import { ArrowLeft, FileDown, CheckCircle2, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowLeft, FileDown, CheckCircle2, RotateCcw, Trash2, RefreshCw } from "lucide-react";
 import {
   computeMaturity,
   MATURITY_LABELS,
@@ -15,6 +15,7 @@ import {
   completeAuditSession,
   reopenAuditSession,
   deleteAuditSession,
+  createReauditSession,
 } from "../_actions/audit-actions";
 import { QuestionRow } from "./_components/question-row";
 
@@ -57,6 +58,7 @@ export default async function AuditSessionPage({ params }: { params: Promise<{ i
   const completeBound = completeAuditSession.bind(null, audit.id);
   const reopenBound = reopenAuditSession.bind(null, audit.id);
   const deleteBound = deleteAuditSession.bind(null, audit.id);
+  const reauditBound = createReauditSession.bind(null, audit.id);
 
   const findingsBySeverity = (["critical", "high", "medium", "low"] as FindingSeverity[]).map((sev) => ({
     sev,
@@ -90,9 +92,14 @@ export default async function AuditSessionPage({ params }: { params: Promise<{ i
           <Button variant="outline" size="sm"><FileDown size={16} /> Raport PDF</Button>
         </a>
         {readOnly ? (
-          <form action={reopenBound}>
-            <Button type="submit" variant="secondary" size="sm"><RotateCcw size={16} /> Wznów edycję</Button>
-          </form>
+          <>
+            <form action={reauditBound}>
+              <Button type="submit" size="sm"><RefreshCw size={16} /> Utwórz re-audyt</Button>
+            </form>
+            <form action={reopenBound}>
+              <Button type="submit" variant="secondary" size="sm"><RotateCcw size={16} /> Wznów edycję</Button>
+            </form>
+          </>
         ) : (
           <form action={completeBound}>
             <Button type="submit" size="sm"><CheckCircle2 size={16} /> Zakończ i wygeneruj raport</Button>
@@ -102,6 +109,13 @@ export default async function AuditSessionPage({ params }: { params: Promise<{ i
           <Button type="submit" variant="ghost" size="sm" className="text-red-400"><Trash2 size={16} /> Usuń</Button>
         </form>
       </div>
+
+      {audit.note && (
+        <div className="mb-6 flex items-start gap-2 rounded-lg border border-brand-500/20 bg-brand-500/5 px-3 py-2 text-sm text-brand-300">
+          <RefreshCw size={15} className="mt-0.5 shrink-0" />
+          <span>{audit.note}</span>
+        </div>
+      )}
 
       {/* Findings + rekomendacje (po finalizacji) */}
       {readOnly && audit.findings.length > 0 && (

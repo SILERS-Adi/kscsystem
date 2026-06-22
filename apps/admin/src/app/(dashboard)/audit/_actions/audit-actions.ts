@@ -93,6 +93,81 @@ export async function createAuditSession(formData: FormData) {
   redirect(`/audit/${created.id}`);
 }
 
+/**
+ * Tworzy sesję re-audytu na podstawie zakończonego audytu:
+ * - ta sama organizacja i szablon (porównywalność #N ↔ #N+1),
+ * - kopiuje odpowiedzi z poprzedniej sesji (audytor weryfikuje tylko zmiany),
+ * - PRZENOSI otwarte punkty z rejestru remediacji (odpowiedzialny + termin),
+ *   oznaczając je w notatce, żeby było jasne co zostało do domknięcia.
+ */
+export async function createReauditSession(previousSessionId: string) {
+  const prev = await prisma.auditSession.findUnique({
+    where: { id: previousSessionId },
+    include: {
+      answers: true,
+      template: { include: { sections: { include: { questions: true } } } },
+    },
+  });
+  if (!prev) throw new Error("Nie znaleziono audytu źródłowego.");
+
+  const [me, openActions] = await Promise.all([
+    getSession(),
+    prisma.remediationAction.findMany({
+      where: { organizationId: prev.organizationId, status: { in: ["open", "in_progress"] } },
+    }),
+  ]);
+
+  const actionByCode = new Map(
+    openActions.filter((a) => a.questionCode).map((a) => [a.questionCode as string, a])
+  );
+  const codeByQId = new Map(
+    prev.template.sections.flatMap((s) => s.questions).map((q) => [q.id, q.code])
+  );
+
+  const prevDate = prev.completedAt ?? prev.createdAt;
+  const carried = prev.answers.filter((a) => {
+    const c = codeByQId.get(a.questionId);
+    return c != null && actionByCode.has(c);
+  }).length;
+
+  const created = await prisma.$transaction(async (tx) => {
+    const session = await tx.auditSession.create({
+      data: {
+        organizationId: prev.organizationId,
+        templateId: prev.templateId,
+        templateVersion: prev.templateVersion,
+        conductedById: me?.userId ?? null,
+        status: "draft",
+        startedAt: new Date(),
+        note: `Re-audyt na podstawie audytu z ${prevDate.toLocaleDateString("pl-PL")} — przeniesiono ${carried} otwartych punktów.`,
+      },
+    });
+
+    for (const a of prev.answers) {
+      const code = codeByQId.get(a.questionId);
+      const action = code ? actionByCode.get(code) : undefined;
+      await tx.auditAnswer.create({
+        data: {
+          sessionId: session.id,
+          questionId: a.questionId,
+          status: a.status,
+          valueText: a.valueText,
+          note: action
+            ? `↪ Otwarty punkt z poprzedniego audytu${action.responsiblePerson ? ` (odp.: ${action.responsiblePerson})` : ""}.${a.note ? ` ${a.note}` : ""}`
+            : a.note,
+          responsiblePerson: action?.responsiblePerson ?? a.responsiblePerson,
+          dueDate: action?.dueDate ?? a.dueDate,
+        },
+      });
+    }
+
+    return session;
+  });
+
+  revalidatePath("/audit");
+  redirect(`/audit/${created.id}`);
+}
+
 export interface AnswerInput {
   status?: AuditAnswerStatus | null;
   valueText?: string;
