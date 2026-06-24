@@ -1,32 +1,15 @@
 /**
- * Logo marki KSCSYSTEM do raportów PDF (białe tło, kolory marki).
- * Inline style — raporty są drukowane (print-color-adjust: exact), bez zależności
- * od ciemnego motywu komponentu UI Logo.
+ * Logo KSCSYSTEM do raportów PDF. Plik: apps/admin/public/logo.png
+ * Serwowany pod basePath → /admin/logo.png. Plain <img> (strona druku,
+ * next/image niepotrzebny i komplikowałby print).
  */
-export function ReportLogo({ size = 34 }: { size?: number }) {
-  const fontPx = Math.round(size * 0.35);
+export function ReportLogo({ height = 60 }: { height?: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: 8,
-          background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-          color: "#fff",
-          fontWeight: 800,
-          fontSize: fontPx,
-          letterSpacing: ".02em",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        KSC
-      </div>
-      <span style={{ fontWeight: 800, fontSize: Math.round(size * 0.5), color: "#111827", letterSpacing: "-.01em" }}>
-        KSC<span style={{ color: "#4f46e5" }}>SYSTEM</span>
-      </span>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/admin/logo.png"
+      alt="KSCSYSTEM"
+      style={{ height, width: "auto", display: "block" }}
+    />
   );
 }
