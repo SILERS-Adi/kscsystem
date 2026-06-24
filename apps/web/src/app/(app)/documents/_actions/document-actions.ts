@@ -1,16 +1,8 @@
 "use server";
 
 import { prisma } from "@kscsystem/db";
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-
-async function getCurrentOrgId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const orgId = cookieStore.get("kscsystem_org_id")?.value;
-  if (orgId) return orgId;
-  const org = await prisma.organization.findFirst({ orderBy: { createdAt: "desc" } });
-  return org?.id ?? null;
-}
+import { getSession, getSessionOrgId as getCurrentOrgId } from "@/lib/auth";
 
 async function getOrgData(orgId: string) {
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
@@ -50,8 +42,11 @@ export async function getOrganizationDocuments() {
 }
 
 export async function getDocument(id: string) {
-  return prisma.document.findUnique({
-    where: { id },
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return null;
+  // Tylko dokument WŁASNEJ organizacji (zapobiega IDOR po id).
+  return prisma.document.findFirst({
+    where: { id, organizationId: orgId },
     include: {
       template: { select: { name: true, type: true, version: true } },
       organization: { select: { name: true } },
@@ -75,11 +70,12 @@ export async function generateDocument(templateId: string) {
     orderBy: { version: "desc" },
   });
 
+  const session = await getSession();
   const doc = await prisma.document.create({
     data: {
       templateId,
       organizationId: orgId,
-      createdById: (await prisma.user.findFirst({ where: { organizationId: orgId } }))?.id ?? "",
+      createdById: session?.userId ?? "",
       name: template.name,
       type: template.type,
       content: filledContent,
@@ -93,8 +89,11 @@ export async function generateDocument(templateId: string) {
 }
 
 export async function updateDocumentStatus(id: string, status: "draft" | "published" | "archived") {
-  await prisma.document.update({
-    where: { id },
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return;
+  // updateMany z filtrem org → no-op gdy dokument nie należy do organizacji (anty-IDOR).
+  await prisma.document.updateMany({
+    where: { id, organizationId: orgId },
     data: { status },
   });
   revalidatePath("/documents");
@@ -102,6 +101,8 @@ export async function updateDocumentStatus(id: string, status: "draft" | "publis
 }
 
 export async function deleteDocument(id: string) {
-  await prisma.document.delete({ where: { id } });
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return;
+  await prisma.document.deleteMany({ where: { id, organizationId: orgId } });
   revalidatePath("/documents");
 }

@@ -2,17 +2,7 @@
 
 import { prisma, type ChecklistStatus } from "@kscsystem/db";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-
-async function getCurrentOrgId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const orgId = cookieStore.get("kscsystem_org_id")?.value;
-  if (orgId) return orgId;
-
-  // Fallback: first org in DB (demo mode)
-  const org = await prisma.organization.findFirst({ orderBy: { createdAt: "desc" } });
-  return org?.id ?? null;
-}
+import { getSessionOrgId as getCurrentOrgId } from "@/lib/auth";
 
 export async function getChecklistWithProgress() {
   const orgId = await getCurrentOrgId();

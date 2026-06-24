@@ -1,15 +1,7 @@
 "use server";
 
 import { prisma, type ChecklistStatus } from "@kscsystem/db";
-import { cookies } from "next/headers";
-
-async function getCurrentOrgId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const orgId = cookieStore.get("kscsystem_org_id")?.value;
-  if (orgId) return orgId;
-  const org = await prisma.organization.findFirst({ orderBy: { createdAt: "desc" } });
-  return org?.id ?? null;
-}
+import { getSessionOrgId as getCurrentOrgId } from "@/lib/auth";
 
 export async function getDashboardData() {
   const orgId = await getCurrentOrgId();

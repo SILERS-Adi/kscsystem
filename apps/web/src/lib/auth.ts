@@ -39,17 +39,6 @@ export async function createSession(payload: SessionPayload): Promise<void> {
     maxAge: 60 * 60 * 24 * 30, // 30 days
     path: "/",
   });
-
-  // Also set the org cookie for backward compat
-  if (payload.orgId) {
-    cookieStore.set("kscsystem_org_id", payload.orgId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
-  }
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
@@ -63,6 +52,16 @@ export async function getSession(): Promise<SessionPayload | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Bezpieczne źródło organizacji zalogowanego użytkownika — z PODPISANEJ sesji JWT.
+ * BEZ fallbacku do „pierwszej organizacji w bazie" (to był wyciek między najemcami)
+ * i bez czytania manipulowalnego ciasteczka org. Zwraca null gdy brak sesji/org.
+ */
+export async function getSessionOrgId(): Promise<string | null> {
+  const session = await getSession();
+  return session?.orgId ?? null;
 }
 
 export async function destroySession(): Promise<void> {
