@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, StatCard } from "@kscsystem/ui";
-import { ListChecks, CircleDot, Loader, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ListChecks, CircleDot, Loader, CheckCircle2, AlertTriangle, FileDown } from "lucide-react";
 import { REMEDIATION_STATUS_LABELS, type RemediationStatus } from "@kscsystem/types";
 import {
   getRemediationRegister,
@@ -61,12 +61,30 @@ export default async function RemediationPage({
     return `/remediation${qs ? `?${qs}` : ""}`;
   };
 
+  const reportQs = (() => {
+    const sp = new URLSearchParams();
+    if (status) sp.set("status", status);
+    if (org) sp.set("org", org);
+    const qs = sp.toString();
+    return qs ? `?${qs}` : "";
+  })();
+
   return (
     <div>
-      <PageHeader
-        title="Remediacja"
-        description="Trwały rejestr działań naprawczych z audytów — realizacja punkt po punkcie, ponad pojedynczą sesją"
-      />
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <PageHeader
+          title="Remediacja"
+          description="Trwały rejestr działań naprawczych z audytów — realizacja punkt po punkcie, ponad pojedynczą sesją"
+        />
+        <a
+          href={`/admin/remediation/report${reportQs}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 inline-flex items-center gap-2 rounded-lg border border-border bg-surface-100 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-surface-200 transition-colors"
+        >
+          <FileDown size={16} /> Eksport PDF
+        </a>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <StatCard label="Otwarte" value={stats.open} icon={<CircleDot size={20} />} />
