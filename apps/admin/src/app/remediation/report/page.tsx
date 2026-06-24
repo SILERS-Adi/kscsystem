@@ -10,6 +10,7 @@ import {
   getRemediationOrganizations,
 } from "../../(dashboard)/audit/_actions/audit-actions";
 import { PrintButton } from "../../audit/[id]/report/print-button";
+import { ReportLogo } from "@/components/report-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -78,11 +79,14 @@ export default async function RemediationReportPage({
           <PrintButton />
         </div>
 
-        <div style={{ borderBottom: "3px solid #4f46e5", paddingBottom: 12, marginBottom: 18 }}>
-          <h1 style={{ fontSize: 22, margin: 0, color: "#4f46e5" }}>Rejestr działań naprawczych</h1>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>
-            Plan remediacji{orgName ? ` · ${orgName}` : " · wszystkie organizacje"} · wygenerowano {fmtDate(new Date())}
-          </p>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, borderBottom: "3px solid #4f46e5", paddingBottom: 12, marginBottom: 18 }}>
+          <div>
+            <h1 style={{ fontSize: 22, margin: 0, color: "#4f46e5" }}>Rejestr działań naprawczych</h1>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>
+              Plan remediacji{orgName ? ` · ${orgName}` : " · wszystkie organizacje"} · wygenerowano {fmtDate(new Date())}
+            </p>
+          </div>
+          <ReportLogo />
         </div>
 
         {/* Podsumowanie */}

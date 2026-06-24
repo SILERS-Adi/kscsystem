@@ -10,6 +10,7 @@ import {
 } from "@kscsystem/types";
 import { getAuditSession } from "../../../(dashboard)/audit/_actions/audit-actions";
 import { PrintButton } from "./print-button";
+import { ReportLogo } from "@/components/report-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -62,9 +63,12 @@ export default async function AuditReportPage({ params }: { params: Promise<{ id
           <PrintButton />
         </div>
 
-        <div style={{ borderBottom: "3px solid #4f46e5", paddingBottom: 12, marginBottom: 18 }}>
-          <h1 style={{ fontSize: 22, margin: 0, color: "#4f46e5" }}>Raport Audytu Cyberbezpieczeństwa</h1>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>Gap Analysis · {audit.template.name} v{audit.templateVersion}</p>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, borderBottom: "3px solid #4f46e5", paddingBottom: 12, marginBottom: 18 }}>
+          <div>
+            <h1 style={{ fontSize: 22, margin: 0, color: "#4f46e5" }}>Raport Audytu Cyberbezpieczeństwa</h1>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>Gap Analysis · {audit.template.name} v{audit.templateVersion}</p>
+          </div>
+          <ReportLogo />
         </div>
 
         {/* Dane firmy */}
