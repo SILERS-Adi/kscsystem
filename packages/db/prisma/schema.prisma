@@ -514,6 +514,8 @@ model Incident {
   description    String
   severity       IncidentSeverity @default(medium)
   status         IncidentStatus   @default(open)
+  detectedAt     DateTime?        // moment wykrycia — podstawa terminów KSC 24h/72h
+  csirtReportedAt DateTime?       // kiedy zgłoszono do CSIRT (zatrzymuje zegar)
   resolvedAt     DateTime?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt

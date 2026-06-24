@@ -14,6 +14,37 @@ export type IncidentSeverity = "low" | "medium" | "high" | "critical";
 
 export type IncidentStatus = "open" | "investigating" | "resolved" | "closed";
 
+export const INCIDENT_SEVERITY_LABELS: Record<IncidentSeverity, string> = {
+  low: "Niski",
+  medium: "Średni",
+  high: "Wysoki",
+  critical: "Krytyczny",
+};
+
+export const INCIDENT_STATUS_LABELS: Record<IncidentStatus, string> = {
+  open: "Otwarty",
+  investigating: "Badany",
+  resolved: "Rozwiązany",
+  closed: "Zamknięty",
+};
+
+/** Terminy zgłoszeń KSC/NIS2 liczone od wykrycia incydentu. */
+export const KSC_EARLY_WARNING_HOURS = 24; // wczesne ostrzeżenie
+export const KSC_NOTIFICATION_HOURS = 72; // zgłoszenie incydentu
+
+export interface CsirtDeadline {
+  /** godziny do terminu (ujemne = po terminie) */
+  hoursLeft: number;
+  overdue: boolean;
+}
+
+/** Liczy stan terminu (np. 24h) od momentu wykrycia do teraz. */
+export function csirtDeadlineStatus(detectedAt: Date, windowHours: number, now: Date = new Date()): CsirtDeadline {
+  const deadline = new Date(detectedAt.getTime() + windowHours * 3600_000);
+  const hoursLeft = (deadline.getTime() - now.getTime()) / 3600_000;
+  return { hoursLeft, overdue: hoursLeft < 0 };
+}
+
 export type SubscriptionStatus = "active" | "trial" | "cancelled" | "expired";
 
 export type QuizQuestionType = "single" | "multiple" | "scale";
