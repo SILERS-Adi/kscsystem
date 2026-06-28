@@ -23,7 +23,7 @@ export function LandingNav() {
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="http://localhost:3000/login">Zaloguj się</Link>
+            <Link href={`${process.env.NEXT_PUBLIC_WEB_URL ?? "https://kscsystem.pl"}/login`}>Zaloguj się</Link>
           </Button>
           <Button size="sm" asChild>
             <Link href="/quiz">Sprawdź teraz</Link>

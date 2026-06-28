@@ -1,7 +1,19 @@
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Input } from "@kscsystem/ui";
+import { Card, CardHeader, CardTitle, CardContent, Badge } from "@kscsystem/ui";
 import { Building2 } from "lucide-react";
+import { getMyOrg } from "./_actions/profile-actions";
+import { OrgProfileForm } from "./_components/org-profile-form";
 
-export default function ProfilePage() {
+export const dynamic = "force-dynamic";
+
+const classLabel: Record<string, string> = {
+  essential: "Podmiot kluczowy",
+  important: "Podmiot ważny",
+  unknown: "Nieokreślony",
+};
+
+export default async function ProfilePage() {
+  const org = await getMyOrg();
+
   return (
     <div>
       <div className="mb-8">
@@ -9,98 +21,70 @@ export default function ProfilePage() {
         <p className="mt-1 text-sm text-gray-400">Dane organizacji i klasyfikacja KSC</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Company info */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Dane firmy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Nazwa firmy</label>
-                  <Input defaultValue="TechCorp Sp. z o.o." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">NIP</label>
-                  <Input defaultValue="1234567890" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Sektor</label>
-                  <Input defaultValue="Energia" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Wielkość</label>
-                  <Input defaultValue="Średnie (50-249 pracowników)" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Strona www</label>
-                <Input defaultValue="https://techcorp.pl" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Adres</label>
-                <Input defaultValue="ul. Marszałkowska 1, 00-001 Warszawa" />
-              </div>
-              <Button size="sm">Zapisz zmiany</Button>
-            </CardContent>
-          </Card>
-        </div>
+      {!org ? (
+        <Card><CardContent><p className="py-8 text-center text-sm text-gray-500">Brak przypisanej organizacji.</p></CardContent></Card>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader><CardTitle>Dane firmy</CardTitle></CardHeader>
+              <CardContent>
+                <OrgProfileForm
+                  initial={{
+                    name: org.name,
+                    nip: org.nip ?? "",
+                    sector: org.sector ?? "",
+                    size: org.size ?? "",
+                    website: org.website ?? "",
+                    phone: org.phone ?? "",
+                    address: org.address ?? "",
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Classification */}
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">
-                  <Building2 size={24} />
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">
+                    <Building2 size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Klasyfikacja KSC</p>
+                    <p className="text-lg font-bold text-white">{classLabel[org.type] ?? org.type}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-400">Klasyfikacja KSC</p>
-                  <p className="text-lg font-bold text-white">Podmiot kluczowy</p>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between"><span className="text-gray-400">Sektor</span><span className="text-white">{org.sector ?? "—"}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Użytkownicy</span><span className="text-white">{org._count.users}</span></div>
                 </div>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Sektor</span>
-                  <span className="text-white">Energia</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Wynik quizu</span>
-                  <span className="text-white font-mono">75 pkt</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Status</span>
-                  <Badge variant="default">Zweryfikowany</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-sm font-medium text-white mb-3">Plan subskrypcji</p>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Plan</span>
-                  <Badge variant="accent">Professional</Badge>
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-sm font-medium text-white mb-3">Plan subskrypcji</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Plan</span>
+                    <Badge variant="default">{org.subscription?.plan?.name ?? "Brak / trial"}</Badge>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Status</span>
+                    <span className="text-white">{org.subscription?.status ?? "—"}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Odnowienie</span>
+                    <span className="text-white">{org.subscription?.currentPeriodEnd ? org.subscription.currentPeriodEnd.toLocaleDateString("pl-PL") : "—"}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Użytkownicy</span>
-                  <span className="text-white">5 / 10</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Odnowienie</span>
-                  <span className="text-white">2026-05-01</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

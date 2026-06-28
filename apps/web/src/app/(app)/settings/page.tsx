@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Badge } from "@kscsystem/ui";
 import { CreditCard, ArrowRight } from "lucide-react";
+import { getMyAccount } from "./_actions/account-actions";
+import { NameForm, PasswordForm } from "./_components/account-forms";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+const roleLabel: Record<string, string> = { superadmin: "Super admin", org_admin: "Admin firmy", member: "Użytkownik" };
+
+export default async function SettingsPage() {
+  const account = await getMyAccount();
+
   return (
     <div>
       <div className="mb-8">
@@ -12,61 +20,37 @@ export default function SettingsPage() {
 
       <div className="space-y-6 max-w-2xl">
         <Card>
-          <CardHeader>
-            <CardTitle>Profil użytkownika</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Profil użytkownika</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Imię</label>
-                <Input defaultValue="Jan" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Nazwisko</label>
-                <Input defaultValue="Kowalski" />
-              </div>
-            </div>
+            <NameForm initialName={account?.name ?? ""} />
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Email</label>
-              <Input defaultValue="jan@techcorp.pl" disabled />
+              <Input defaultValue={account?.email ?? ""} disabled />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400">Rola:</span>
-              <Badge variant="default">org_admin</Badge>
+              <Badge variant="default">{roleLabel[account?.role ?? "member"] ?? account?.role}</Badge>
             </div>
-            <Button size="sm">Zapisz zmiany</Button>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Zmiana hasła</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Obecne hasło</label>
-              <Input type="password" placeholder="••••••••" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Nowe hasło</label>
-              <Input type="password" placeholder="Min. 8 znaków" />
-            </div>
-            <Button size="sm" variant="secondary">Zmień hasło</Button>
+          <CardHeader><CardTitle>Zmiana hasła</CardTitle></CardHeader>
+          <CardContent>
+            <PasswordForm />
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Subskrypcja i platnosci</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Subskrypcja i płatności</CardTitle></CardHeader>
           <CardContent>
             <p className="text-sm text-gray-400 mb-4">
-              Zarzadzaj swoim planem, metoda platnosci i przegladaj historie transakcji.
+              Zarządzaj swoim planem, metodą płatności i przeglądaj historię transakcji.
             </p>
             <Button size="sm" asChild>
               <Link href="/settings/billing">
                 <CreditCard size={16} />
-                Zarzadzaj subskrypcja
+                Zarządzaj subskrypcją
                 <ArrowRight size={16} />
               </Link>
             </Button>

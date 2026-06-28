@@ -25,15 +25,15 @@ export function LandingFooter() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-3">Informacje</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Polityka prywatności</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Regulamin</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">RODO</Link></li>
+              <li><Link href="/polityka-prywatnosci" className="text-sm text-gray-400 hover:text-white transition-colors">Polityka prywatności</Link></li>
+              <li><Link href="/regulamin" className="text-sm text-gray-400 hover:text-white transition-colors">Regulamin</Link></li>
+              <li><Link href="/rodo" className="text-sm text-gray-400 hover:text-white transition-colors">RODO</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-border text-center">
-          <p className="text-xs text-gray-500">&copy; 2026 KSCSYSTEM by Silers. Wszelkie prawa zastrzeżone.</p>
+          <p className="text-xs text-gray-500">&copy; 2026 KSCSYSTEM by Silers · NIP: 8261941094. Wszelkie prawa zastrzeżone.</p>
         </div>
       </div>
     </footer>
