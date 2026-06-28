@@ -1,51 +1,36 @@
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, Badge, ProgressBar } from "@kscsystem/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@kscsystem/ui";
+import { getOrganizations } from "./_actions/organization-actions";
+import { OrgManager, type OrgView } from "./_components/org-manager";
 
-const mockOrgs = [
-  { name: "TechCorp Sp. z o.o.", nip: "1234567890", type: "essential", sector: "Energia", plan: "Professional", compliance: 72, users: 5 },
-  { name: "SecureIT S.A.", nip: "0987654321", type: "important", sector: "IT", plan: "Enterprise", compliance: 45, users: 12 },
-  { name: "DataGuard Sp. z o.o.", nip: "1122334455", type: "essential", sector: "Telekomunikacja", plan: "Starter", compliance: 30, users: 2 },
-];
+export const dynamic = "force-dynamic";
 
-const typeVariant = { essential: "destructive", important: "warning", unknown: "muted" } as const;
+export default async function OrganizationsPage() {
+  const orgs = await getOrganizations();
+  const items: OrgView[] = orgs.map((o) => ({
+    id: o.id,
+    name: o.name,
+    nip: o.nip,
+    sector: o.sector,
+    size: o.size,
+    type: o.type,
+    website: o.website,
+    phone: o.phone,
+    address: o.address,
+    users: o._count.users,
+    audits: o._count.auditSessions,
+    plan: o.subscription?.plan?.name ?? null,
+  }));
 
-export default function OrganizationsPage() {
   return (
     <div>
       <PageHeader title="Organizacje" description="Zarządzanie firmami w systemie" />
-
       <Card>
         <CardHeader>
-          <CardTitle>Organizacje ({mockOrgs.length})</CardTitle>
+          <CardTitle>Organizacje ({items.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {mockOrgs.map((org, i) => (
-              <div key={i} className="rounded-lg border border-border bg-surface-50 p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="font-medium text-white">{org.name}</p>
-                    <p className="text-xs text-gray-500">NIP: {org.nip} · {org.sector} · {org.users} użytkowników</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={typeVariant[org.type as keyof typeof typeVariant]}>{org.type}</Badge>
-                    <Badge variant="outline">{org.plan}</Badge>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-400">Compliance</span>
-                    <span className="text-xs font-medium text-gray-300">{org.compliance}%</span>
-                  </div>
-                  <ProgressBar
-                    value={org.compliance}
-                    showLabel={false}
-                    variant={org.compliance > 60 ? "accent" : org.compliance > 30 ? "warning" : "destructive"}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+          <OrgManager orgs={items} />
         </CardContent>
       </Card>
     </div>

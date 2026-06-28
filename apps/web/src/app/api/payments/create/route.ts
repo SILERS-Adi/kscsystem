@@ -29,6 +29,9 @@ export async function POST(req: NextRequest) {
   const externalId = `ksc-${session.orgId}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
 
   const appUrl = process.env.NEXT_PUBLIC_WEB_URL || "https://kscsystem.pl";
+  // Sekret webhooka (jeśli ustawiony) trafia do URL callbacku jako ?token=.
+  const webhookSecret = process.env.PAY_WEBHOOK_SECRET;
+  const webhookUrl = `${appUrl}/api/payments/webhook${webhookSecret ? `?token=${encodeURIComponent(webhookSecret)}` : ""}`;
 
   // Create payment record in DB
   const payment = await prisma.payment.create({
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
     buyerName: session.name || undefined,
     externalId,
     continueUrl: `${appUrl}/settings/billing?payment=${payment.id}`,
-    webhookUrl: `${appUrl}/api/payments/webhook`,
+    webhookUrl,
     metadata: {
       paymentId: payment.id,
       organizationId: session.orgId,

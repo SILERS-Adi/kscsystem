@@ -606,6 +606,13 @@ model Payment {
 
 // --- CMS ---
 
+// Proste ustawienia systemowe klucz-wartość (panel admina).
+model Setting {
+  key       String   @id
+  value     String?
+  updatedAt DateTime @updatedAt
+}
+
 model CmsContent {
   id          String   @id @default(cuid())
   key         String   @unique

@@ -52,6 +52,11 @@ export async function updateDocumentTemplate(id: string, formData: FormData) {
 }
 
 export async function deleteDocumentTemplate(id: string) {
-  await prisma.documentTemplate.delete({ where: { id } });
+  try {
+    await prisma.documentTemplate.delete({ where: { id } });
+  } catch {
+    // Szablon może być powiązany z wygenerowanymi dokumentami — archiwizujemy zamiast usuwać.
+    await prisma.documentTemplate.update({ where: { id }, data: { status: "archived", isActive: false } });
+  }
   revalidatePath("/templates");
 }

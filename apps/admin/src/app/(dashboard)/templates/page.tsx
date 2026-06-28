@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@kscsystem/ui";
-import { FileText, Trash2 } from "lucide-react";
+import { FileText, Trash2, Pencil } from "lucide-react";
 import { getDocumentTemplates, deleteDocumentTemplate } from "./_actions/template-actions";
 import { TemplateForm } from "./_components/template-form";
 
@@ -46,6 +47,9 @@ export default async function TemplatesPage() {
                       <span className="text-xs text-gray-500">v{t.version}</span>
                     </div>
                   </div>
+                  <Link href={`/templates/${t.id}`}>
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white"><Pencil size={16} /></Button>
+                  </Link>
                   <form action={async () => { "use server"; await deleteDocumentTemplate(t.id); }}>
                     <Button variant="ghost" size="icon" type="submit" className="text-red-400 hover:text-red-300">
                       <Trash2 size={16} />

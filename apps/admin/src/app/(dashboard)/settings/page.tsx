@@ -1,7 +1,13 @@
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input } from "@kscsystem/ui";
+import { Card, CardContent, CardHeader, CardTitle, Input } from "@kscsystem/ui";
+import { getSettings } from "./_actions/settings-actions";
+import { GeneralSettings } from "./_components/general-settings";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const settings = await getSettings();
+
   return (
     <div>
       <PageHeader title="Ustawienia" description="Konfiguracja systemu" />
@@ -11,16 +17,8 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Ogólne</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Nazwa systemu</label>
-              <Input defaultValue="KSCSYSTEM" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Email kontaktowy</label>
-              <Input defaultValue="biuro@silers.pl" />
-            </div>
-            <Button size="sm">Zapisz zmiany</Button>
+          <CardContent>
+            <GeneralSettings initial={settings} />
           </CardContent>
         </Card>
 
