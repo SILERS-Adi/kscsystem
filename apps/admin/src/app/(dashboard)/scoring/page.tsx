@@ -3,12 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@kscsys
 import { Trash2, Eye, EyeOff } from "lucide-react";
 import { getScoringRules, deleteScoringRule, toggleScoringRule } from "./_actions/scoring-actions";
 import { RuleForm } from "./_components/rule-form";
+import { ConfirmSubmit } from "@/components/confirm-submit";
 
 export const dynamic = 'force-dynamic';
 
 export default async function ScoringPage() {
   const rules = await getScoringRules();
   const activeCount = rules.filter((r) => r.isActive).length;
+
+  // Progi klasyfikacji z REALNYCH reguł (kategoria "classification", operator gte).
+  const classThresholds = rules
+    .map((r) => ({ r, c: r.condition as { operator?: string; value?: number } }))
+    .filter((x) => x.r.category === "classification" && x.c?.operator === "gte" && typeof x.c?.value === "number")
+    .map((x) => x.c.value as number)
+    .sort((a, b) => b - a);
+  const essentialThreshold = classThresholds[0] ?? 60;
+  const importantThreshold = classThresholds[1] ?? 30;
 
   return (
     <div>
@@ -17,11 +27,11 @@ export default async function ScoringPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="p-5">
           <p className="text-sm text-gray-400 mb-1">Próg: Podmiot kluczowy</p>
-          <p className="text-2xl font-bold text-brand-400">&ge; 60 pkt</p>
+          <p className="text-2xl font-bold text-brand-400">&ge; {essentialThreshold} pkt</p>
         </Card>
         <Card className="p-5">
           <p className="text-sm text-gray-400 mb-1">Próg: Podmiot ważny</p>
-          <p className="text-2xl font-bold text-amber-400">&ge; 30 pkt</p>
+          <p className="text-2xl font-bold text-amber-400">&ge; {importantThreshold} pkt</p>
         </Card>
         <Card className="p-5">
           <p className="text-sm text-gray-400 mb-1">Aktywne reguły</p>
@@ -73,9 +83,9 @@ export default async function ScoringPage() {
                         </Button>
                       </form>
                       <form action={async () => { "use server"; await deleteScoringRule(rule.id); }}>
-                        <Button variant="ghost" size="icon" type="submit" className="text-red-400 hover:text-red-300">
+                        <ConfirmSubmit message={`Usunąć regułę „${rule.name}"?`} className="text-red-400 hover:text-red-300">
                           <Trash2 size={16} />
-                        </Button>
+                        </ConfirmSubmit>
                       </form>
                     </div>
                   </div>

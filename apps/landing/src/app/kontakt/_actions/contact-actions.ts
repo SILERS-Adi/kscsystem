@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@kscsystem/db";
+import { sendContactNotification } from "@kscsystem/email";
 
 export interface ContactInput {
   name?: string;
@@ -28,5 +29,9 @@ export async function submitContact(input: ContactInput): Promise<{ error?: stri
   } catch {
     return { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie." };
   }
+
+  // Powiadomienie mailowe (nie blokuje zapisu leada w razie błędu SMTP).
+  sendContactNotification({ name: input.name?.trim(), email, message }).catch(() => {});
+
   return { ok: true };
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@kscsystem/db";
 import { Avatar, Badge } from "@kscsystem/ui";
 import { Bell } from "lucide-react";
@@ -17,6 +18,17 @@ export async function AppTopbar() {
     ? await prisma.organization.findUnique({ where: { id: session.orgId } })
     : null;
 
+  // Wskaźnik: incydenty po terminie zgłoszenia do CSIRT (24h), niezgłoszone.
+  let attention = 0;
+  if (session?.orgId) {
+    const incs = await prisma.incident.findMany({
+      where: { organizationId: session.orgId, status: { in: ["open", "investigating"] }, csirtReportedAt: null },
+      select: { detectedAt: true, createdAt: true },
+    });
+    const now = Date.now();
+    attention = incs.filter((i) => now - (i.detectedAt ?? i.createdAt).getTime() > 24 * 3600_000).length;
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface/80 backdrop-blur-xl px-6">
       <div>
@@ -26,9 +38,19 @@ export async function AppTopbar() {
       <div className="flex items-center gap-4">
         <Badge variant="default">{classLabels[org?.type ?? "unknown"] ?? org?.type}</Badge>
 
-        <button className="relative p-2 rounded-lg hover:bg-surface-100 transition-colors">
+        <Link
+          href="/incidents"
+          className="relative p-2 rounded-lg hover:bg-surface-100 transition-colors"
+          title={attention > 0 ? `${attention} incydent(ów) po terminie zgłoszenia do CSIRT` : "Incydenty"}
+        >
           <Bell size={18} className="text-gray-400" />
-        </button>
+          {attention > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+              {attention}
+            </span>
+          )}
+        </Link>
+
 
         <div className="h-6 w-px bg-border" />
 

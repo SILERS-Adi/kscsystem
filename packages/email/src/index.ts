@@ -115,6 +115,22 @@ export async function sendQuizReportEmail(
   });
 }
 
+export async function sendContactNotification(opts: { name?: string; email: string; message: string }) {
+  const to = process.env.CONTACT_INBOX || process.env.SMTP_USER || "biuro@silers.pl";
+  return sendMail({
+    to,
+    subject: `Nowa wiadomość z formularza kontaktowego${opts.name ? ` — ${opts.name}` : ""}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #6366f1;">Nowa wiadomość z sprawdzksc.pl</h2>
+        <p><strong>Od:</strong> ${opts.name || "—"} &lt;${opts.email}&gt;</p>
+        <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin: 16px 0; white-space: pre-wrap;">${opts.message}</div>
+        <p style="color: #888; font-size: 12px;">Lead zapisany w panelu (Leady).</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   return sendMail({
     to: email,

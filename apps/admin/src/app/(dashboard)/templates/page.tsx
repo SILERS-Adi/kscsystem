@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@kscsys
 import { FileText, Trash2, Pencil } from "lucide-react";
 import { getDocumentTemplates, deleteDocumentTemplate } from "./_actions/template-actions";
 import { TemplateForm } from "./_components/template-form";
+import { ConfirmSubmit } from "@/components/confirm-submit";
 
 export const dynamic = "force-dynamic";
 
@@ -51,9 +52,9 @@ export default async function TemplatesPage() {
                     <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white"><Pencil size={16} /></Button>
                   </Link>
                   <form action={async () => { "use server"; await deleteDocumentTemplate(t.id); }}>
-                    <Button variant="ghost" size="icon" type="submit" className="text-red-400 hover:text-red-300">
+                    <ConfirmSubmit message={`Usunąć szablon „${t.name}"? Jeśli ma powiązane dokumenty, zostanie zarchiwizowany.`} className="text-red-400 hover:text-red-300">
                       <Trash2 size={16} />
-                    </Button>
+                    </ConfirmSubmit>
                   </form>
                 </div>
               ))}

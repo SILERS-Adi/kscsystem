@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@kscsys
 import { Trash2, Eye, EyeOff } from "lucide-react";
 import { getChecklistItems, deleteChecklistItem, toggleChecklistItem } from "./_actions/checklist-actions";
 import { ChecklistForm } from "./_components/checklist-form";
+import { ConfirmSubmit } from "@/components/confirm-submit";
 
 export const dynamic = 'force-dynamic';
 
@@ -58,9 +59,9 @@ export default async function ChecklistPage() {
                       </Button>
                     </form>
                     <form action={async () => { "use server"; await deleteChecklistItem(item.id); }}>
-                      <Button variant="ghost" size="icon" type="submit" className="text-red-400 hover:text-red-300">
+                      <ConfirmSubmit message={`Usunąć obowiązek „${item.code}"?`} className="text-red-400 hover:text-red-300">
                         <Trash2 size={16} />
-                      </Button>
+                      </ConfirmSubmit>
                     </form>
                   </div>
                 </div>

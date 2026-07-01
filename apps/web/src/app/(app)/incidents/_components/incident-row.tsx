@@ -8,6 +8,7 @@ import {
   INCIDENT_STATUS_LABELS,
   csirtDeadlineStatus,
   KSC_EARLY_WARNING_HOURS,
+  KSC_NOTIFICATION_HOURS,
   type IncidentSeverity,
   type IncidentStatus,
 } from "@kscsystem/types";
@@ -52,6 +53,8 @@ export function IncidentRow({ inc }: { inc: IncidentView }) {
   const basis = new Date(inc.detectedAt ?? inc.createdAt);
   const dl = csirtDeadlineStatus(basis, KSC_EARLY_WARNING_HOURS);
   const absH = Math.abs(Math.round(dl.hoursLeft));
+  const dl72 = csirtDeadlineStatus(basis, KSC_NOTIFICATION_HOURS);
+  const absH72 = Math.abs(Math.round(dl72.hoursLeft));
 
   return (
     <div className="rounded-lg border border-border bg-surface-50 p-4">
@@ -75,11 +78,16 @@ export function IncidentRow({ inc }: { inc: IncidentView }) {
                 <ShieldCheck size={13} /> Zgłoszono do CSIRT · {fmt(inc.csirtReportedAt)}
               </span>
             ) : active ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1 text-xs ${dl.overdue ? "text-red-400" : "text-amber-400"}`}>
-                  <Clock size={13} />
-                  CSIRT 24h: {dl.overdue ? `po terminie o ${absH} h` : `zostało ${absH} h`}
-                </span>
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 text-xs ${dl.overdue ? "text-red-400" : "text-amber-400"}`}>
+                    <Clock size={13} />
+                    Wczesne ostrzeżenie 24h: {dl.overdue ? `po terminie o ${absH} h` : `zostało ${absH} h`}
+                  </span>
+                  <span className={`inline-flex items-center gap-1 text-xs ${dl72.overdue ? "text-red-400" : "text-gray-400"}`}>
+                    · Zgłoszenie 72h: {dl72.overdue ? `po terminie o ${absH72} h` : `zostało ${absH72} h`}
+                  </span>
+                </div>
                 <button
                   type="button"
                   disabled={pending}

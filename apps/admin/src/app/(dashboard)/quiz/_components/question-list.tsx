@@ -56,7 +56,11 @@ function QuestionRow({ q }: { q: Question }) {
               variant="ghost"
               size="icon"
               className="text-red-400 hover:text-red-300"
-              onClick={() => startTransition(() => deleteQuizQuestion(q.id))}
+              onClick={() => {
+                if (confirm(`Usunąć pytanie ${q.code}? Tej operacji nie można cofnąć.`)) {
+                  startTransition(() => deleteQuizQuestion(q.id));
+                }
+              }}
             >
               <Trash2 size={16} />
             </Button>
